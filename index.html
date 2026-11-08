@@ -1,0 +1,912 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f4f7f1">
+<title>FLORESCER | Meu desafio</title>
+
+<style>
+:root {
+ --bg:#f5f7f2;
+ --white:#ffffff;
+ --ink:#35443c;
+ --muted:#7c8980;
+ --sage:#dce9dc;
+ --green:#73947c;
+ --dark:#557660;
+ --peach:#f8e9df;
+ --lav:#eeeaf5;
+ --line:#e7ece5;
+ --gold:#e7c98a;
+}
+
+* {box-sizing:border-box}
+
+body {
+ margin:0;
+ background:var(--bg);
+ color:var(--ink);
+ font-family:Arial,sans-serif;
+ line-height:1.55;
+}
+
+button,input,textarea {font:inherit}
+
+button {
+ border:0;
+ border-radius:12px;
+ padding:11px 16px;
+ background:var(--green);
+ color:white;
+ font-weight:bold;
+ cursor:pointer;
+}
+
+button.secondary {
+ background:#edf4ed;
+ color:var(--dark);
+}
+
+button.danger {
+ background:#f8e9e9;
+ color:#a64c45;
+}
+
+input,textarea {
+ width:100%;
+ border:1px solid var(--line);
+ border-radius:10px;
+ padding:11px;
+ background:white;
+ color:var(--ink);
+}
+
+.wrap {
+ max-width:1100px;
+ margin:auto;
+ padding:20px;
+}
+
+header {
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:12px;
+ margin-bottom:22px;
+}
+
+.brand {
+ font-size:27px;
+ font-weight:900;
+ letter-spacing:-1px;
+}
+
+.brand span {color:var(--green)}
+
+.hero {
+ background:linear-gradient(120deg,#e5efe5,#f8eee6);
+ padding:25px;
+ border-radius:22px;
+ margin-bottom:18px;
+}
+
+.hero h1 {
+ font-size:32px;
+ margin:8px 0;
+}
+
+.grid {
+ display:grid;
+ grid-template-columns:repeat(3,1fr);
+ gap:14px;
+}
+
+.card {
+ background:white;
+ border:1px solid var(--line);
+ border-radius:18px;
+ padding:19px;
+ margin-bottom:14px;
+}
+
+.stat {
+ font-size:30px;
+ font-weight:900;
+}
+
+.muted {color:var(--muted)}
+.small {font-size:12px;color:var(--muted)}
+
+.nav {
+ display:flex;
+ gap:7px;
+ overflow-x:auto;
+ margin:18px 0;
+ padding-bottom:8px;
+}
+
+.nav button {
+ white-space:nowrap;
+ background:white;
+ color:var(--muted);
+ border:1px solid var(--line);
+}
+
+.nav button.active {
+ background:var(--sage);
+ color:var(--ink);
+}
+
+.field {margin:12px 0}
+.field label {
+ display:block;
+ margin-bottom:5px;
+ font-size:13px;
+ font-weight:bold;
+}
+
+.task {
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ padding:12px 0;
+ border-bottom:1px solid var(--line);
+}
+
+.task label {
+ display:flex;
+ gap:9px;
+ align-items:flex-start;
+}
+
+.check {
+ width:20px;
+ height:20px;
+ accent-color:var(--green);
+}
+
+.pill {
+ display:inline-block;
+ padding:5px 10px;
+ border-radius:30px;
+ background:#edf4ed;
+ color:var(--dark);
+ font-size:12px;
+}
+
+.bar {
+ height:10px;
+ background:#edf0eb;
+ border-radius:20px;
+ overflow:hidden;
+}
+
+.bar i {
+ display:block;
+ height:100%;
+ background:var(--green);
+}
+
+.warning {
+ background:#fff4e9;
+ border:1px solid #f0d9c6;
+ border-radius:13px;
+ padding:14px;
+ margin:15px 0;
+ color:#75533f;
+}
+
+.wide {grid-column:1/-1}
+
+.foot {
+ text-align:center;
+ padding:25px;
+ color:var(--muted);
+ font-size:12px;
+}
+
+@media(max-width:700px) {
+ .wrap {padding:12px}
+ .grid {grid-template-columns:1fr}
+ .hero h1 {font-size:26px}
+ header {align-items:flex-start}
+ .wide {grid-column:auto}
+}
+
+@media print {
+ body {background:white}
+ body * {visibility:hidden}
+ #report,#report * {visibility:visible}
+ #report {
+  display:block!important;
+  position:absolute;
+  top:0;
+  left:0;
+  width:100%;
+  padding:20px;
+  color:#222;
+ }
+ #report h1,#report h2 {color:#557660}
+ #report table {
+  width:100%;
+  border-collapse:collapse;
+  margin:10px 0 20px;
+ }
+ #report th,#report td {
+  border:1px solid #ddd;
+  padding:8px;
+  text-align:left;
+ }
+ #report th {background:#edf4ed}
+ @page {margin:15mm}
+}
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<header>
+ <div>
+  <div class="brand">FLORESCER<span>.</span></div>
+  <div class="small">Pequenos passos, grandes conquistas.</div>
+ </div>
+ <div style="display:flex;gap:6px;flex-wrap:wrap">
+  <button class="secondary" onclick="exportBackup()">Backup</button>
+  <button class="secondary" onclick="importBackup()">Importar</button>
+  <button onclick="generatePDF()">PDF</button>
+  <input type="file" id="fileInput" accept=".json" hidden>
+ </div>
+</header>
+
+<section class="hero">
+ <span class="pill">MEU DESAFIO DE 30 DIAS</span>
+ <h1>Olá, <span id="hello">Bárbara</span> 🌷</h1>
+ <p class="muted">Seu progresso merece ser celebrado.</p>
+
+ <div class="grid">
+  <div>
+   <div class="stat" id="points">0</div>
+   <div class="small">Pontos conquistados</div>
+  </div>
+  <div>
+   <div class="stat" id="done">0/5</div>
+   <div class="small">Hábitos de hoje</div>
+  </div>
+  <div>
+   <div class="stat" id="days">0</div>
+   <div class="small">Dias registrados</div>
+  </div>
+ </div>
+
+ <div class="bar" style="margin-top:18px">
+  <i id="progress" style="width:0%"></i>
+ </div>
+ <p class="small" id="goalText">Meta: 30 pontos</p>
+</section>
+
+<div class="warning">
+ <b>Atenção à saúde:</b> diante do ganho rápido de peso, barriga dura e redução das evacuações relatados, procure avaliação presencial antes de iniciar corrida, treinos ou dieta restritiva. Dor abdominal, vômitos, febre ou dificuldade para eliminar gases e fezes exigem atendimento urgente.
+</div>
+
+<nav class="nav">
+ <button class="active" onclick="showTab('painel',this)">Painel</button>
+ <button onclick="showTab('habitos',this)">Hábitos</button>
+ <button onclick="showTab('diario',this)">Diário</button>
+ <button onclick="showTab('treinos',this)">Treinos</button>
+ <button onclick="showTab('receitas',this)">Receitas</button>
+ <button onclick="showTab('metas',this)">Metas</button>
+</nav>
+
+<main id="content"></main>
+
+<section id="report" style="display:none"></section>
+
+<div class="foot">
+ FLORESCER • Meu espaço de evolução e autocuidado.
+</div>
+
+</div>
+
+<script>
+
+// =====================================
+// BANCO DE DADOS LOCAL
+// =====================================
+
+const KEY = "florescer_app_v2";
+
+const habits = [
+ "Beber água conforme orientação profissional",
+ "Fazer uma refeição nutritiva",
+ "Respeitar os horários alimentares orientados",
+ "Reservar um momento de descanso",
+ "Registrar como me senti hoje"
+];
+
+const initialData = {
+ name:"Bárbara",
+ goal:30,
+ checks:{},
+ logs:[],
+ recipes:[],
+ workouts:[],
+ notes:[]
+};
+
+let data = loadData();
+
+function loadData() {
+ try {
+  return {
+   ...initialData,
+   ...JSON.parse(localStorage.getItem(KEY) || "{}")
+  };
+ } catch {
+  return {...initialData};
+ }
+}
+
+function saveData() {
+ localStorage.setItem(KEY,JSON.stringify(data));
+ updateHeader();
+}
+
+function today() {
+ const d = new Date();
+ return d.getFullYear()+"-"+
+ String(d.getMonth()+1).padStart(2,"0")+"-"+
+ String(d.getDate()).padStart(2,"0");
+}
+
+function escapeHTML(value) {
+ return String(value ?? "").replace(/[&<>"']/g,c=>({
+  "&":"&amp;","<":"&lt;",">":"&gt;",
+  '"':"&quot;","'":"&#39;"
+ }[c]));
+}
+
+function points() {
+ return Object.values(data.checks)
+ .reduce((sum,arr)=>sum+arr.length,0);
+}
+
+function updateHeader() {
+ document.getElementById("hello").textContent=data.name;
+ document.getElementById("points").textContent=points();
+ document.getElementById("done").textContent=
+  (data.checks[today()]||[]).length+"/"+habits.length;
+
+ document.getElementById("days").textContent=
+  Object.keys(data.checks).filter(k=>data.checks[k].length).length;
+
+ let percent=Math.min(100,points()/Math.max(1,data.goal)*100);
+
+ document.getElementById("progress").style.width=percent+"%";
+ document.getElementById("goalText").textContent=
+  "Meta: "+data.goal+" pontos • "+Math.round(percent)+"%";
+}
+
+// =====================================
+// NAVEGAÇÃO
+// =====================================
+
+function showTab(tab,button) {
+ document.querySelectorAll(".nav button")
+ .forEach(b=>b.classList.remove("active"));
+
+ if(button) button.classList.add("active");
+
+ const c=document.getElementById("content");
+
+ if(tab==="painel") renderPanel(c);
+ if(tab==="habitos") renderHabits(c);
+ if(tab==="diario") renderDiary(c);
+ if(tab==="treinos") renderWorkouts(c);
+ if(tab==="receitas") renderRecipes(c);
+ if(tab==="metas") renderGoals(c);
+}
+
+function card(title,content) {
+ return `<section class="card"><h2>${title}</h2>${content}</section>`;
+}
+
+// =====================================
+// PAINEL
+// =====================================
+
+function renderPanel(c) {
+ let recent=data.logs.slice(0,4).map(x=>`
+  <div class="task">
+   <div>
+    <b>${escapeHTML(x.date)}</b>
+    <div class="small">${escapeHTML(x.note)}</div>
+   </div>
+   ${x.weight?`<span class="pill">${escapeHTML(x.weight)} kg</span>`:""}
+  </div>
+ `).join("");
+
+ c.innerHTML=`
+ <div class="grid">
+  ${card("Meu momento",`
+   <p class="muted">Um passo de cada vez. Respeite seu ritmo.</p>
+   <button onclick="showTab('habitos')">Registrar hábitos</button>
+  `)}
+  ${card("Minha pontuação",`
+   <div class="stat">${points()} pts</div>
+   <span class="pill">${points()>=data.goal?"Meta alcançada!":"Continue florescendo"}</span>
+  `)}
+  ${card("Minhas conquistas",`
+   <p>🌱 ${points()>=1?"Primeiro passo conquistado":"Primeiro passo pendente"}</p>
+   <p>🌿 ${points()>=10?"10 pontos conquistados":"Meta de 10 pontos"}</p>
+   <p>🌼 ${points()>=30?"30 pontos conquistados":"Meta de 30 pontos"}</p>
+  `)}
+  <div class="wide">
+   ${card("Últimos registros",recent||"<p>Nenhum registro ainda.</p>")}
+  </div>
+ </div>`;
+}
+
+// =====================================
+// HÁBITOS E PONTUAÇÃO
+// =====================================
+
+function renderHabits(c) {
+ const done=data.checks[today()]||[];
+
+ c.innerHTML=card("Hábitos de hoje",`
+ <p class="muted">Cada hábito concluído vale 1 ponto.</p>
+
+ ${habits.map((h,i)=>`
+  <div class="task">
+   <label>
+    <input class="check" type="checkbox"
+     ${done.includes(i)?"checked":""}
+     onchange="toggleHabit(${i},this.checked)">
+    ${h}
+   </label>
+   <span class="pill">${done.includes(i)?"+1 ponto":"1 ponto"}</span>
+  </div>
+ `).join("")}
+ `);
+}
+
+function toggleHabit(i,checked) {
+ let arr=data.checks[today()]||[];
+
+ if(checked&&!arr.includes(i)) arr.push(i);
+ if(!checked) arr=arr.filter(x=>x!==i);
+
+ data.checks[today()]=arr;
+
+ saveData();
+ renderHabits(document.getElementById("content"));
+}
+
+// =====================================
+// DIÁRIO
+// =====================================
+
+function renderDiary(c) {
+ c.innerHTML=`
+ <div class="grid">
+  ${card("Novo registro",`
+   <div class="field">
+    <label>Data</label>
+    <input type="date" id="logDate" value="${today()}">
+   </div>
+
+   <div class="field">
+    <label>Peso (opcional)</label>
+    <input type="number" id="weight" step=".1" placeholder="kg">
+   </div>
+
+   <div class="field">
+    <label>Medidas (opcional)</label>
+    <input id="measure" placeholder="Ex.: cintura em cm">
+   </div>
+
+   <div class="field">
+    <label>Humor e disposição</label>
+    <input id="mood" placeholder="Ex.: tranquila, cansada...">
+   </div>
+
+   <div class="field">
+    <label>Observações</label>
+    <textarea id="note" rows="4"></textarea>
+   </div>
+
+   <button onclick="addLog()">Salvar registro</button>
+  `)}
+
+  ${card("Histórico",`
+   ${data.logs.map((x,i)=>`
+    <div class="task">
+     <div>
+      <b>${escapeHTML(x.date)}</b>
+      <div class="small">
+       ${escapeHTML(x.note)}
+       ${x.weight?" • "+escapeHTML(x.weight)+" kg":""}
+       ${x.measure?" • "+escapeHTML(x.measure):""}
+       ${x.mood?" • "+escapeHTML(x.mood):""}
+      </div>
+     </div>
+     <button class="danger" onclick="deleteLog(${i})">Excluir</button>
+    </div>
+   `).join("")||"<p>Nenhum registro.</p>"}
+  `)}
+ </div>`;
+}
+
+function addLog() {
+ const weight=document.getElementById("weight").value;
+ const note=document.getElementById("note").value;
+
+ if(!weight&&!note&&!document.getElementById("mood").value) {
+  alert("Preencha pelo menos um campo.");
+  return;
+ }
+
+ data.logs.unshift({
+  date:document.getElementById("logDate").value,
+  weight:weight?Number(weight):null,
+  measure:document.getElementById("measure").value,
+  mood:document.getElementById("mood").value,
+  note:note
+ });
+
+ saveData();
+ showTab("diario");
+}
+
+function deleteLog(i) {
+ if(confirm("Excluir este registro?")) {
+  data.logs.splice(i,1);
+  saveData();
+  showTab("diario");
+ }
+}
+
+// =====================================
+// MOVIMENTO E TREINOS
+// =====================================
+
+function renderWorkouts(c) {
+ c.innerHTML=card("Minha área de movimento",`
+ <div class="warning">
+ Não inicie exercícios enquanto os sintomas relatados não forem avaliados por um profissional de saúde.
+ </div>
+
+ <h3>Como será nosso plano após liberação?</h3>
+
+ <p class="muted">
+ Vamos construir uma progressão de caminhada e corrida,
+ com descanso, intensidade gradual e adaptação ao seu
+ condicionamento e histórico bariátrico.
+ </p>
+
+ <hr>
+
+ <h3>Registro de atividade orientada</h3>
+
+ <div class="field">
+  <label>Atividade autorizada</label>
+  <input id="workName" placeholder="Ex.: caminhada leve">
+ </div>
+
+ <div class="field">
+  <label>Duração</label>
+  <input id="workTime" placeholder="Ex.: 20 minutos">
+ </div>
+
+ <div class="field">
+  <label>Observações</label>
+  <textarea id="workNote"></textarea>
+ </div>
+
+ <button onclick="addWorkout()">Salvar atividade</button>
+
+ <hr>
+
+ <h3>Histórico de atividades</h3>
+
+ ${data.workouts.map((x,i)=>`
+  <div class="task">
+   <div>
+    <b>${escapeHTML(x.name)}</b>
+    <div class="small">${escapeHTML(x.date)} • ${escapeHTML(x.time)}</div>
+    <div class="small">${escapeHTML(x.note)}</div>
+   </div>
+   <button class="danger" onclick="deleteWorkout(${i})">Excluir</button>
+  </div>
+ `).join("")||"<p>Nenhuma atividade registrada.</p>"}
+ `);
+}
+
+function addWorkout() {
+ let name=document.getElementById("workName").value.trim();
+
+ if(!name) {
+  alert("Informe a atividade.");
+  return;
+ }
+
+ data.workouts.unshift({
+  name:name,
+  time:document.getElementById("workTime").value,
+  note:document.getElementById("workNote").value,
+  date:today()
+ });
+
+ saveData();
+ showTab("treinos");
+}
+
+function deleteWorkout(i) {
+ if(confirm("Excluir atividade?")) {
+  data.workouts.splice(i,1);
+  saveData();
+  showTab("treinos");
+ }
+}
+
+// =====================================
+// RECEITAS
+// =====================================
+
+function renderRecipes(c) {
+ c.innerHTML=`
+ <div class="grid">
+  ${card("Minha biblioteca",`
+   <p class="muted">
+    Guarde receitas e orientações aprovadas pela sua nutricionista.
+    Porções, consistência e ingredientes devem respeitar seu plano bariátrico.
+   </p>
+
+   ${data.recipes.map((x,i)=>`
+    <div class="task">
+     <div>
+      <b>${escapeHTML(x.name)}</b>
+      <div class="small">${escapeHTML(x.details)}</div>
+     </div>
+     <button class="danger" onclick="deleteRecipe(${i})">Excluir</button>
+    </div>
+   `).join("")||"<p>Nenhuma receita salva.</p>"}
+  `)}
+
+  ${card("Adicionar receita",`
+   <div class="field">
+    <label>Nome da receita</label>
+    <input id="recipeName">
+   </div>
+
+   <div class="field">
+    <label>Ingredientes e preparo</label>
+    <textarea id="recipeDetails" rows="6"></textarea>
+   </div>
+
+   <button onclick="addRecipe()">Salvar receita</button>
+  `)}
+ </div>`;
+}
+
+function addRecipe() {
+ const name=document.getElementById("recipeName").value.trim();
+
+ if(!name) {
+  alert("Informe o nome da receita.");
+  return;
+ }
+
+ data.recipes.unshift({
+  name:name,
+  details:document.getElementById("recipeDetails").value
+ });
+
+ saveData();
+ showTab("receitas");
+}
+
+function deleteRecipe(i) {
+ if(confirm("Excluir receita?")) {
+  data.recipes.splice(i,1);
+  saveData();
+  showTab("receitas");
+ }
+}
+
+// =====================================
+// METAS E PERFIL
+// =====================================
+
+function renderGoals(c) {
+ c.innerHTML=card("Minhas metas",`
+ <div class="field">
+  <label>Meu nome</label>
+  <input id="profileName" value="${escapeHTML(data.name)}">
+ </div>
+
+ <div class="field">
+  <label>Meta de pontos</label>
+  <input id="profileGoal" type="number" min="1" value="${data.goal}">
+ </div>
+
+ <button onclick="saveProfile()">Salvar alterações</button>
+
+ <hr>
+
+ <h3>Minhas medalhas</h3>
+
+ <p>${points()>=1?"🌱":"🔒"} Primeiro passo</p>
+ <p>${points()>=10?"🌿":"🔒"} 10 pontos</p>
+ <p>${points()>=30?"🌼":"🔒"} 30 pontos</p>
+ <p>${points()>=50?"🏅":"🔒"} 50 pontos</p>
+
+ <p class="small">Pontos representam hábitos registrados, não calorias gastas ou peso perdido.</p>
+ `);
+}
+
+function saveProfile() {
+ data.name=document.getElementById("profileName").value.trim()||"Bárbara";
+ data.goal=Math.max(1,Number(document.getElementById("profileGoal").value)||30);
+
+ saveData();
+ showTab("metas");
+ alert("Perfil atualizado!");
+}
+
+// =====================================
+// BACKUP E IMPORTAÇÃO
+// =====================================
+
+function exportBackup() {
+ const blob=new Blob(
+  [JSON.stringify(data,null,2)],
+  {type:"application/json"}
+ );
+
+ const url=URL.createObjectURL(blob);
+ const a=document.createElement("a");
+
+ a.href=url;
+ a.download="florescer-backup.json";
+ a.click();
+
+ URL.revokeObjectURL(url);
+}
+
+function importBackup() {
+ document.getElementById("fileInput").click();
+}
+
+document.getElementById("fileInput").addEventListener("change",async e=>{
+ const file=e.target.files[0];
+ if(!file) return;
+
+ try {
+  const imported=JSON.parse(await file.text());
+
+  if(!imported||!imported.checks||
+     !Array.isArray(imported.logs)||
+     !Array.isArray(imported.recipes)||
+     !Array.isArray(imported.workouts)) {
+   throw new Error("Arquivo incompatível.");
+  }
+
+  if(!confirm("Os dados atuais serão substituídos pelo backup. Continuar?")) return;
+
+  data={...initialData,...imported};
+
+  saveData();
+  showTab("painel");
+
+  alert("Backup recuperado com sucesso!");
+ } catch(err) {
+  alert("Não foi possível importar: "+err.message);
+ }
+
+ e.target.value="";
+});
+
+// =====================================
+// RELATÓRIO PDF
+// =====================================
+
+function generatePDF() {
+ const report=document.getElementById("report");
+
+ const habitsHTML=Object.entries(data.checks)
+ .sort()
+ .map(([date,ids])=>`
+  <tr>
+   <td>${escapeHTML(date)}</td>
+   <td>${ids.map(i=>escapeHTML(habits[i])).join("<br>")}</td>
+   <td>${ids.length}</td>
+  </tr>
+ `).join("")||"<tr><td colspan='3'>Sem registros</td></tr>";
+
+ const logsHTML=data.logs.map(x=>`
+  <tr>
+   <td>${escapeHTML(x.date)}</td>
+   <td>${x.weight?escapeHTML(x.weight)+" kg":"—"}</td>
+   <td>${escapeHTML(x.measure||"—")}</td>
+   <td>${escapeHTML(x.mood||"—")}</td>
+   <td>${escapeHTML(x.note||"—")}</td>
+  </tr>
+ `).join("")||"<tr><td colspan='5'>Sem registros</td></tr>";
+
+ const recipesHTML=data.recipes.map(x=>`
+  <article>
+   <h3>${escapeHTML(x.name)}</h3>
+   <p>${escapeHTML(x.details).replace(/\n/g,"<br>")}</p>
+  </article>
+ `).join("")||"<p>Nenhuma receita salva.</p>";
+
+ const workoutsHTML=data.workouts.map(x=>`
+  <tr>
+   <td>${escapeHTML(x.date)}</td>
+   <td>${escapeHTML(x.name)}</td>
+   <td>${escapeHTML(x.time)}</td>
+   <td>${escapeHTML(x.note)}</td>
+  </tr>
+ `).join("")||"<tr><td colspan='4'>Sem registros</td></tr>";
+
+ report.innerHTML=`
+ <h1>FLORESCER — Relatório pessoal</h1>
+ <p>Gerado em ${new Date().toLocaleString("pt-BR")}</p>
+
+ <h2>Perfil e metas</h2>
+ <p>
+ Nome: ${escapeHTML(data.name)}<br>
+ Meta: ${data.goal} pontos<br>
+ Pontos registrados: ${points()}<br>
+ Dias com registros: ${Object.keys(data.checks).length}
+ </p>
+
+ <h2>Hábitos concluídos</h2>
+ <table>
+ <tr><th>Data</th><th>Hábitos</th><th>Pontos</th></tr>
+ ${habitsHTML}
+ </table>
+
+ <h2>Diário de evolução</h2>
+ <table>
+ <tr><th>Data</th><th>Peso</th><th>Medidas</th><th>Humor</th><th>Observações</th></tr>
+ ${logsHTML}
+ </table>
+
+ <h2>Receitas salvas</h2>
+ ${recipesHTML}
+
+ <h2>Atividades registradas</h2>
+ <table>
+ <tr><th>Data</th><th>Atividade</th><th>Duração</th><th>Observações</th></tr>
+ ${workoutsHTML}
+ </table>
+
+ <h2>Orientações de movimento</h2>
+ <p>
+ Este aplicativo não prescreve exercícios individualizados.
+ Retome atividades somente após avaliação e liberação profissional.
+ </p>
+
+ <h2>Observação</h2>
+ <p>
+ Este documento é um registro pessoal e não substitui
+ acompanhamento médico, nutricional ou de educação física.
+ </p>
+ `;
+
+ window.print();
+}
+
+updateHeader();
+showTab("painel");
+
+</script>
+</body>
+</html>
