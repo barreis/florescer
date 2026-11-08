@@ -1,11 +1,13 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#f4f7f1">
-<title>FLORESCER | Meu desafio</title>
+<title>FLORESCER | Meu desafio & Running Hub</title>
+
+<!-- Chart.js para os gráficos de corrida -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <style>
 :root {
@@ -32,7 +34,7 @@ body {
  line-height:1.55;
 }
 
-button,input,textarea {font:inherit}
+button,input,textarea,select {font:inherit}
 
 button {
  border:0;
@@ -54,7 +56,7 @@ button.danger {
  color:#a64c45;
 }
 
-input,textarea {
+input,textarea,select {
  width:100%;
  border:1px solid var(--line);
  border-radius:10px;
@@ -201,6 +203,29 @@ header {
 
 .wide {grid-column:1/-1}
 
+.table-responsive {
+ width:100%;
+ overflow-x:auto;
+}
+
+table {
+ width:100%;
+ border-collapse:collapse;
+ margin-top:10px;
+}
+
+th, td {
+ border:1px solid var(--line);
+ padding:10px;
+ text-align:left;
+ font-size:14px;
+}
+
+th {
+ background:#edf4ed;
+ color:var(--dark);
+}
+
 .foot {
  text-align:center;
  padding:25px;
@@ -264,7 +289,7 @@ header {
 </header>
 
 <section class="hero">
- <span class="pill">MEU DESAFIO DE 30 DIAS</span>
+ <span class="pill">MEU DESAFIO DE 30 DIAS & PERFORMANCE</span>
  <h1>Olá, <span id="hello">Bárbara</span> 🌷</h1>
  <p class="muted">Seu progresso merece ser celebrado.</p>
 
@@ -297,7 +322,8 @@ header {
  <button class="active" onclick="showTab('painel',this)">Painel</button>
  <button onclick="showTab('habitos',this)">Hábitos</button>
  <button onclick="showTab('diario',this)">Diário</button>
- <button onclick="showTab('treinos',this)">Treinos</button>
+ <button onclick="showTab('corrida',this)">🏃‍♀️ Corrida & Níveis</button>
+ <button onclick="showTab('treinos',this)">Atividades</button>
  <button onclick="showTab('receitas',this)">Receitas</button>
  <button onclick="showTab('metas',this)">Metas</button>
 </nav>
@@ -318,7 +344,7 @@ header {
 // BANCO DE DADOS LOCAL
 // =====================================
 
-const KEY = "florescer_app_v2";
+const KEY = "florescer_app_v3_running";
 
 const habits = [
  "Beber água conforme orientação profissional",
@@ -335,10 +361,18 @@ const initialData = {
  logs:[],
  recipes:[],
  workouts:[],
- notes:[]
+ notes:[],
+ runningLogs: [
+  { date: '2026-10-02', km: 4.0, tempo: 25.0 },
+  { date: '2026-10-09', km: 5.0, tempo: 30.0 },
+  { date: '2026-10-16', km: 6.5, tempo: 37.0 },
+  { date: '2026-10-23', km: 8.0, tempo: 44.0 }
+ ]
 };
 
 let data = loadData();
+let chartKmInstance = null;
+let chartPaceInstance = null;
 
 function loadData() {
  try {
@@ -406,6 +440,7 @@ function showTab(tab,button) {
  if(tab==="painel") renderPanel(c);
  if(tab==="habitos") renderHabits(c);
  if(tab==="diario") renderDiary(c);
+ if(tab==="corrida") renderRunningHub(c);
  if(tab==="treinos") renderWorkouts(c);
  if(tab==="receitas") renderRecipes(c);
  if(tab==="metas") renderGoals(c);
@@ -572,7 +607,287 @@ function deleteLog(i) {
 }
 
 // =====================================
-// MOVIMENTO E TREINOS
+// RUNNING HUB (CORRIDA & PERFORMANCE)
+// =====================================
+
+function renderRunningHub(c) {
+ c.innerHTML = `
+ <div class="grid">
+  <div class="wide">
+   ${card("🏃‍♀️ Planilhas de Corrida por Nível", `
+    <p class="muted">Orientações seguras estruturadas por etapas para evolução gradual da resistência.</p>
+    <div class="grid" style="margin-top:14px;">
+     <div style="border:1px solid var(--line); border-radius:12px; padding:15px; background:#f9fbf8;">
+      <span class="pill" style="margin-bottom:8px; display:inline-block;">Iniciante</span>
+      <h4 style="margin:5px 0;">Caminhada ao 5k Contínuo</h4>
+      <p class="small">Foco em adaptação neuromuscular e base aeróbica leve.</p>
+      <ul class="small" style="padding-left:16px; margin:8px 0;">
+       <li>Seg: Descanso ou Mobilidade</li>
+       <li>Ter: 35 min (1 min trote / 2 min caminhada)</li>
+       <li>Qui: 40 min trote leve contínuo</li>
+       <li>Sáb: Longão misto 4km (alternando blocos)</li>
+      </ul>
+     </div>
+     <div style="border:1px solid var(--line); border-radius:12px; padding:15px; background:#f9fbf8;">
+      <span class="pill" style="margin-bottom:8px; display:inline-block; background:#fff3cd; color:#856404;">Intermediário</span>
+      <h4 style="margin:5px 0;">Consolidação (5k a 10k)</h4>
+      <p class="small">Ganho de ritmo controlado e variação de estímulos.</p>
+      <ul class="small" style="padding-left:16px; margin:8px 0;">
+       <li>Ter: Intervalado (4x 800m forte / 2min trote)</li>
+       <li>Qua: Rodagem regenerativa 6km</li>
+       <li>Sex: Tempo Run 5km (ritmo sustentado)</li>
+       <li>Dom: Longão progressivo (10km a 12km)</li>
+      </ul>
+     </div>
+     <div style="border:1px solid var(--line); border-radius:12px; padding:15px; background:#f9fbf8;">
+      <span class="pill" style="margin-bottom:8px; display:inline-block; background:#f8d7da; color:#721c24;">Avançado</span>
+      <h4 style="margin:5px 0;">Performance & Meia</h4>
+      <p class="small">Limiar anaeróbico máximo e alto volume semanal.</p>
+      <ul class="small" style="padding-left:16px; margin:8px 0;">
+       <li>Ter: Tiro curto (10x 400m na pista)</li>
+       <li>Qui: Fartlek estruturado (45 min)</li>
+       <li>Sáb: Longão específico (16km a 21.1km)</li>
+      </ul>
+     </div>
+    </div>
+   `)}
+  </div>
+
+  ${card("🧮 Calculadora de Pace & Projeções", `
+   <div class="field">
+    <label>Distância Percorrida (km)</label>
+    <input type="number" id="calcDistancia" step="0.1" value="5">
+   </div>
+   <div class="field">
+    <label>Tempo Total (Minutos)</label>
+    <input type="number" id="calcTempo" value="27">
+   </div>
+   <button onclick="calcularPaceAvancado()" style="width:100%">Processar Métricas</button>
+
+   <div id="resultadoPace" class="alert alert-success d-none" style="margin-top:14px; background:#edf4ed; color:var(--dark); border-radius:10px; padding:12px; display:none;">
+    <b>Pace Médio:</b> <span id="resPaceVal">--:--</span> min/km<br>
+    <b>Velocidade:</b> <span id="resVelocidade">0</span> km/h<br>
+    <b>Rodagem Leve:</b> <span id="resEasy">--:--</span> min/km<br>
+    <hr style="border:0; border-top:1px solid #d5e2d5; margin:8px 0;">
+    <b>Projeções de Prova:</b><br>
+    • 5 km: <span id="proj5k">--:--</span><br>
+    • 10 km: <span id="proj10k">--:--</span><br>
+    • Meia Maratona (21.1k): <span id="proj21k">--:--</span>
+   </div>
+  `)}
+
+  ${card("➕ Registrar Nova Corrida", `
+   <form onsubmit="adicionarTreinoCorrida(event)">
+    <div class="field">
+     <label>Data</label>
+     <input type="date" id="runDate" value="${today()}" required>
+    </div>
+    <div class="field">
+     <label>Distância (km)</label>
+     <input type="number" id="runKm" step="0.1" placeholder="Ex: 5.5" required>
+    </div>
+    <div class="field">
+     <label>Tempo Total (minutos)</label>
+     <input type="number" id="runMin" placeholder="Ex: 32" required>
+    </div>
+    <button type="submit" style="width:100%; background:var(--dark)">Salvar Treino</button>
+   </form>
+  `)}
+
+  <div class="wide">
+   ${card("📈 Gráficos de Evolução de Corrida", `
+    <div class="grid">
+     <div>
+      <h4 class="small" style="text-align:center;">Quilometragem por Sessão (km)</h4>
+      <div style="position:relative; height:220px;"><canvas id="chartQuilometragem"></canvas></div>
+     </div>
+     <div>
+      <h4 class="small" style="text-align:center;">Evolução do Pace Médio (min/km)</h4>
+      <div style="position:relative; height:220px;"><canvas id="chartPace"></canvas></div>
+     </div>
+    </div>
+   `)}
+  </div>
+
+  <div class="wide">
+   ${card("📋 Histórico de Corridas Salvas", `
+    <div class="table-responsive">
+     <table>
+      <thead>
+       <tr>
+        <th>Data</th>
+        <th>Distância</th>
+        <th>Tempo</th>
+        <th>Pace Médio</th>
+        <th>Ação</th>
+       </tr>
+      </thead>
+      <tbody id="tabelaTreinosCorpo">
+       <!-- Preenchido dinamicamente -->
+      </tbody>
+     </table>
+    </div>
+   `)}
+  </div>
+ </div>`;
+
+ setTimeout(() => atualizarInterfaceCorrida(), 50);
+}
+
+function calcularPaceAvancado() {
+ const dist = parseFloat(document.getElementById('calcDistancia').value);
+ const tempoMin = parseFloat(document.getElementById('calcTempo').value);
+
+ if(!dist || !tempoMin || dist <= 0 || tempoMin <= 0) {
+  alert("Por favor, informe valores válidos.");
+  return;
+ }
+
+ const paceTotalMin = tempoMin / dist;
+ const minutos = Math.floor(paceTotalMin);
+ const segundos = Math.round((paceTotalMin - minutos) * 60);
+ const paceStr = `${minutos}:${segundos < 10 ? '0' : ''}${segundos}`;
+ const velocidade = (dist / (tempoMin / 60)).toFixed(1);
+ 
+ const easyMin = minutos + 1;
+ const easyStr = `${easyMin}:${segundos < 10 ? '0' : ''}${segundos}`;
+
+ document.getElementById('resPaceVal').innerText = paceStr;
+ document.getElementById('resVelocidade').innerText = velocidade;
+ document.getElementById('resEasy').innerText = easyStr;
+
+ function formatarTempo(mTot) {
+  let m = Math.floor(mTot);
+  let s = Math.round((mTot - m) * 60);
+  return `${m} min ${s} seg`;
+ }
+
+ document.getElementById('proj5k').innerText = formatarTempo(paceTotalMin * 5 * 0.98);
+ document.getElementById('proj10k').innerText = formatarTempo(paceTotalMin * 10 * 1.03);
+ document.getElementById('proj21k').innerText = formatarTempo(paceTotalMin * 21.1 * 1.10);
+
+ document.getElementById('resultadoPace').style.display = 'block';
+}
+
+function adicionarTreinoCorrida(event) {
+ event.preventDefault();
+ const dataTreino = document.getElementById('runDate').value;
+ const km = parseFloat(document.getElementById('runKm').value);
+ const tempo = parseFloat(document.getElementById('runMin').value);
+
+ if (!dataTreino || !km || !tempo) return;
+
+ data.runningLogs.push({ data: dataTreino, km, tempo });
+ data.runningLogs.sort((a, b) => new Date(a.data) - new Date(b.data));
+
+ saveData();
+ renderRunningHub(document.getElementById('content'));
+}
+
+function excluirTreinoCorrida(index) {
+ if(confirm("Deseja realmente excluir este registro de corrida?")) {
+  data.runningLogs.splice(index, 1);
+  saveData();
+  renderRunningHub(document.getElementById('content'));
+ }
+}
+
+function atualizarInterfaceCorrida() {
+ const tbody = document.getElementById('tabelaTreinosCorpo');
+ if (tbody) {
+  tbody.innerHTML = '';
+  data.runningLogs.forEach((t, index) => {
+   let pDec = t.tempo / t.km;
+   let m = Math.floor(pDec);
+   let s = Math.round((pDec - m) * 60);
+   let paceFormatado = `${m}:${s < 10 ? '0' : ''}${s} /km`;
+   
+   let pData = t.data.split('-');
+   let dataBR = `${pData[2]}/${pData[1]}/${pData[0]}`;
+
+   let tr = document.createElement('tr');
+   tr.innerHTML = `
+    <td>${dataBR}</td>
+    <td><strong>${t.km} km</strong></td>
+    <td>${t.tempo} min</td>
+    <td><span class="pill">${paceFormatado}</span></td>
+    <td><button class="danger" style="padding:5px 10px; font-size:12px;" onclick="excluirTreinoCorrida(${index})">Excluir</button></td>
+   `;
+   tbody.appendChild(tr);
+  });
+ }
+ atualizarGraficosCorrida();
+}
+
+function atualizarGraficosCorrida() {
+ if (!data.runningLogs || data.runningLogs.length === 0) return;
+
+ const labels = data.runningLogs.map(t => {
+  let p = t.data.split('-');
+  return `${p[2]}/${p[1]}`;
+ });
+ const dadosKm = data.runningLogs.map(t => t.km);
+ const dadosPace = data.runningLogs.map(t => parseFloat((t.tempo / t.km).toFixed(2)));
+
+ const ctxKm = document.getElementById('chartQuilometragem');
+ if (ctxKm) {
+  if (chartKmInstance) chartKmInstance.destroy();
+  chartKmInstance = new Chart(ctxKm.getContext('2d'), {
+   type: 'bar',
+   data: {
+    labels: labels,
+    datasets: [{
+     label: 'Quilometragem (km)',
+     data: dadosKm,
+     backgroundColor: 'rgba(115, 148, 124, 0.75)',
+     borderColor: 'rgba(85, 118, 96, 1)',
+     borderWidth: 1,
+     borderRadius: 6
+    }]
+   },
+   options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true } } }
+  });
+ }
+
+ const ctxPace = document.getElementById('chartPace');
+ if (ctxPace) {
+  if (chartPaceInstance) chartPaceInstance.destroy();
+  chartPaceInstance = new Chart(ctxPace.getContext('2d'), {
+   type: 'line',
+   data: {
+    labels: labels,
+    datasets: [{
+     label: 'Pace Médio (min/km)',
+     data: dadosPace,
+     borderColor: 'rgba(85, 118, 96, 1)',
+     backgroundColor: 'rgba(220, 233, 220, 0.4)',
+     tension: 0.3,
+     fill: true,
+     pointRadius: 5
+    }]
+   },
+   options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    scales: {
+     y: {
+      reverse: true, // Inverte para paces mais rápidos ficarem no topo
+      ticks: {
+       callback: function(val) {
+        let min = Math.floor(val);
+        let seg = Math.round((val - min) * 60);
+        return `${min}:${seg < 10 ? '0' : ''}${seg}`;
+       }
+      }
+     }
+    }
+   }
+  });
+ }
+}
+
+// =====================================
+// MOVIMENTO E TREINOS GERAIS
 // =====================================
 
 function renderWorkouts(c) {
@@ -580,16 +895,6 @@ function renderWorkouts(c) {
  <div class="warning">
  Não inicie exercícios enquanto os sintomas relatados não forem avaliados por um profissional de saúde.
  </div>
-
- <h3>Como será nosso plano após liberação?</h3>
-
- <p class="muted">
- Vamos construir uma progressão de caminhada e corrida,
- com descanso, intensidade gradual e adaptação ao seu
- condicionamento e histórico bariátrico.
- </p>
-
- <hr>
 
  <h3>Registro de atividade orientada</h3>
 
@@ -855,6 +1160,14 @@ function generatePDF() {
   </tr>
  `).join("")||"<tr><td colspan='4'>Sem registros</td></tr>";
 
+ const runningHTML=(data.runningLogs||[]).map(x=>`
+  <tr>
+   <td>${escapeHTML(x.date)}</td>
+   <td>${escapeHTML(x.km)} km</td>
+   <td>${escapeHTML(x.tempo)} min</td>
+  </tr>
+ `).join("")||"<tr><td colspan='3'>Sem registros</td></tr>";
+
  report.innerHTML=`
  <h1>FLORESCER — Relatório pessoal</h1>
  <p>Gerado em ${new Date().toLocaleString("pt-BR")}</p>
@@ -877,6 +1190,12 @@ function generatePDF() {
  <table>
  <tr><th>Data</th><th>Peso</th><th>Medidas</th><th>Humor</th><th>Observações</th></tr>
  ${logsHTML}
+ </table>
+
+ <h2>Histórico de Corridas</h2>
+ <table>
+ <tr><th>Data</th><th>Distância</th><th>Tempo</th></tr>
+ ${runningHTML}
  </table>
 
  <h2>Receitas salvas</h2>
